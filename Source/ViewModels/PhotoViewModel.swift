@@ -8,30 +8,66 @@
 import Foundation
 
 class PhotoViewModel {
-    private let model: PhotoModel
     private let provider: PhotosSearchProvider
     private var imageRequest: NetworkRequest?
+    private let size: ImageSize
+    
+    let model: PhotoModel
+    
+    let imageData = Observable<Data?>(nil)
+    let downloadFailed = Observable<Bool>(false)
+    let isLoading = Observable<Bool>(false)
 
-    init(model: PhotoModel, provider: PhotosSearchProvider) {
+    init(model: PhotoModel, provider: PhotosSearchProvider, size: ImageSize) {
         self.model = model
         self.provider = provider
+        self.size = size
+    }
+    
+    deinit {
+        removeObservers()
+        abortRequest()
     }
 
-    func downloadImage(completion: @escaping (Result<Data, NetworkError>) -> Void) {
+    func downloadImage() {
+        isLoading.value = true
+        downloadFailed.value = false
+
         // download big photo
-        imageRequest = provider.downloadImage(photo: model, size: .big, completion: completion)
+        imageRequest = provider.downloadImage(photo: model, size: size) { [weak self] result in
+            guard let self = self else { return }
+
+            self.isLoading.value = false
+
+            switch result {
+            case .success(let data):
+                self.imageData.value = data
+
+            case .failure(.requestCancelled): ()
+
+            default:
+                self.downloadFailed.value = true
+                self.imageData.value = nil
+            }
+            // TODO: reload option
+        }
+    }
+
+    func removeObservers() {
+        imageData.observer = nil
+        downloadFailed.observer = nil
+        isLoading.observer = nil
     }
 
     func abortRequest() {
         imageRequest?.task.cancel()
-        imageRequest = nil
-    }
-    
-    deinit {
-        abortRequest()
     }
 
-    //MARK: - Model Data
+    func freeMemory() {
+        imageData.value = nil
+    }
+
+    //MARK: - Presentation
 
     var title: String {
         model.title.capitalizingFirst

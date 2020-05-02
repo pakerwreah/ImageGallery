@@ -14,13 +14,10 @@ class GalleryViewController: UIViewController {
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
 
     private let cellIdentifier = "GalleryCell"
-    private let provider: PhotosSearchProvider
-    private var photos: [GalleryCellViewModel] = []
-    private var fetchRequest: NetworkRequest?
-    private var isLoading = false
+    private let viewModel: GalleryViewModel
 
     init(provider: PhotosSearchProvider) {
-        self.provider = provider
+        viewModel = GalleryViewModel(provider: provider)
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -34,21 +31,28 @@ class GalleryViewController: UIViewController {
 
         title = "Image Gallery"
 
-        URLCache.shared.removeAllCachedResponses() // FIXME: remove
-
         // force capitalization off beacause it's not respecting xib config
         searchBar.autocapitalizationType = .none
 
         // register cell layout to use in the collection view
         grid.register(UINib(nibName: cellIdentifier, bundle: nil), forCellWithReuseIdentifier: cellIdentifier)
+
+        configureObservers()
+    }
+
+    private func cellSizeToFit(count: Int, spacing: CGFloat) -> CGFloat {
+        let size: CGFloat = grid.bounds.width / CGFloat(count)
+        let margin: CGFloat = CGFloat(count) * spacing / 2.0
+        return size - margin
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
         if let gridLayout = grid.collectionViewLayout as? UICollectionViewFlowLayout {
-            // calculates the size to fit 2 elements per row
-            let size = grid.bounds.width / 2 - 5
+            // calculates the size to fit elements in row
+            let count = Orientation.isPortrait ? 2 : 4
+            let size = cellSizeToFit(count: count, spacing: 5)
             gridLayout.itemSize = CGSize(width: size, height: size)
         }
     }
@@ -66,49 +70,32 @@ class GalleryViewController: UIViewController {
         super.viewWillDisappear(animated)
 
         // abort current fetching if exists
-        fetchRequest?.task.cancel()
+        viewModel.abortRequest()
     }
 
-    private func fetchImages() {
-        if !isLoading {
-            isLoading = true
+}
 
+//MARK: - Observers
+extension GalleryViewController {
+    func configureObservers() {
+
+        viewModel.isLoading.bind { value in
             // if it is the first fetch, show loading indicator
-            if photos.isEmpty {
-                loadingIndicator?.startAnimating()
+            if value, self.viewModel.photos.isEmpty {
+                self.loadingIndicator?.startAnimating()
+            } else {
+                self.loadingIndicator?.stopAnimating()
             }
+        }
 
-            fetchRequest = provider.fetch { [weak self] result in
-                guard let self = self else { return }
-
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let photos):
-                        // append the photos to the end of the collection view
-                        self.photos.append(contentsOf: photos.map { GalleryCellViewModel(model: $0, provider: self.provider) })
-                        let total = self.photos.count
-                        if total == 0 {
-                            self.grid.reloadData()
-                        } else {
-                            let range = max(total - photos.count, 0) ..< total
-                            self.grid.insertItems(at: range.map { IndexPath(row: $0, section: 0) })
-                        }
-
-                    case .failure(let error):
-                        self.present(Alert(title: "Error loading images", message: error.localizedDescription), animated: true)
-                    }
-
-                    // reset the flag and stop indicator
-                    self.isLoading = false
-                    self.loadingIndicator?.stopAnimating()
-                }
-
-                // if there is nothing to fetch, reset the flag and stop indicator
-                if self.fetchRequest == nil {
-                    self.isLoading = false
-                    self.loadingIndicator?.stopAnimating()
-                }
+        viewModel.insertedItems.bind { value in
+            if !value.isEmpty {
+                self.grid.insertItems(at: value)
             }
+        }
+
+        viewModel.requestFailed.bind { value in
+            self.present(Alert(title: "Error loading images", message: value), animated: true)
         }
     }
 
@@ -121,14 +108,15 @@ extension GalleryViewController: UISearchBarDelegate {
             // hide keyboard
             view.endEditing(true)
             // remove all items
-            photos.removeAll()
+            viewModel.photos.removeAll()
+            // reload grid
             grid.reloadData()
             // scroll to top
             grid.contentOffset = .zero
-            // update text in the photo provider
-            provider.prepare(search: text)
+            // update text to search
+            viewModel.searchText = text
             // search images
-            fetchImages()
+            viewModel.fetchImages()
         }
     }
 }
@@ -137,34 +125,34 @@ extension GalleryViewController: UISearchBarDelegate {
 extension GalleryViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 
-        if !isLoading {
-            isLoading = true
-
-            let photo = PhotoViewModel(model: photos[indexPath.row].model, provider: provider)
-
-            // TODO: convert to MVVM
-            // download big photo
-            provider.downloadImage(photo: photos[indexPath.row].model, size: .big) { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let data):
-                        // show big photo in fullscreen
-                        if let image = UIImage(data: data) {
-                            self.present(PhotoViewController(image: image, text: photo.title), animated: true)
-                        }
-                    case .failure(let error):
-                        self.present(Alert(title: "Error loading image", message: error.localizedDescription), animated: true)
-                    }
-                }
-                self.isLoading = false
-            }
-        }
+//        if !isLoading {
+//            isLoading = true
+//
+//            let photo = PhotoViewModel(model: photos[indexPath.row].model, provider: provider)
+//
+//            // TODO: convert to MVVM
+//            // download big photo
+//            provider.downloadImage(photo: photos[indexPath.row].model, size: .big) { result in
+//                DispatchQueue.main.async {
+//                    switch result {
+//                    case .success(let data):
+//                        // show big photo in fullscreen
+//                        if let image = UIImage(data: data) {
+//                            self.present(PhotoViewController(image: image, text: photo.title), animated: true)
+//                        }
+//                    case .failure(let error):
+//                        self.present(Alert(title: "Error loading image", message: error.localizedDescription), animated: true)
+//                    }
+//                }
+//                self.isLoading = false
+//            }
+//        }
     }
 
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         // Infinite scroll: when the grid reaches 8 photos before the end, start fetching the next page
-        if indexPath.row == photos.count - 8 {
-            fetchImages()
+        if indexPath.row == viewModel.photos.count - 8 {
+            viewModel.fetchImages()
         }
     }
 }
@@ -173,14 +161,14 @@ extension GalleryViewController: UICollectionViewDelegate {
 extension GalleryViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return photos.count
+        return viewModel.photos.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! GalleryCell
 
-        cell.viewModel = photos[indexPath.row]
+        cell.viewModel = viewModel.photos[indexPath.row]
 
         return cell
     }

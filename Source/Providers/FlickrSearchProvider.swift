@@ -31,6 +31,7 @@ class FlickrSearchProvider: PhotosSearchProvider {
 
     @discardableResult func fetch(completion: @escaping (Result<[PhotoModel], NetworkError>) -> Void) -> NetworkRequest? {
         guard page < totalPages else {
+            completion(.success([]))
             return nil
         }
 

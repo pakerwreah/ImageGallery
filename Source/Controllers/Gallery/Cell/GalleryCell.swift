@@ -12,10 +12,16 @@ class GalleryCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var loadingView: UIActivityIndicatorView! // TODO: connect to xib
 
-    var viewModel: GalleryCellViewModel? {
-        didSet {
+    var viewModel: PhotoViewModel? {
+        willSet {
             if let viewModel = viewModel {
                 viewModel.removeObservers()
+                viewModel.abortRequest()
+                viewModel.freeMemory()
+            }
+        }
+        didSet {
+            if let viewModel = viewModel {
                 viewModel.abortRequest()
 
                 imageView.layer.removeAllAnimations()
@@ -29,7 +35,7 @@ class GalleryCell: UICollectionViewCell {
                         }
                     }
                 }
-                
+
                 // TODO: isLoading observer
                 // TODO: downloadFailed observer
 

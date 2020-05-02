@@ -32,11 +32,17 @@ class Network: NetworkProvider {
         let request = URLRequest(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval.rawValue)
 
         if Network.isConnected {
-            let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-                if let data = data,
+            var task: URLSessionTask!
+
+            task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+                if let error = error as NSError?, error.code == NSURLErrorCancelled {
+                    completion(.failure(.requestCancelled))
+
+                } else if let data = data,
                     let httpResponse = response as? HTTPURLResponse,
                     200 ..< 300 ~= httpResponse.statusCode {
                     completion(.success(data))
+
                 } else {
                     completion(.failure(.requestFailed(error?.localizedDescription)))
                 }
@@ -50,7 +56,7 @@ class Network: NetworkProvider {
             completion(.success(cachedResponse.data))
 
         } else {
-            completion(.failure(.connectionFailed))
+            completion(.failure(.notConnected))
         }
 
         return nil

@@ -9,8 +9,9 @@ import Foundation
 
 enum NetworkError: Error {
     case invalidURL
-    case connectionFailed
+    case notConnected
     case invalidResponse
+    case requestCancelled
     case requestFailed(String? = nil)
 }
 
@@ -19,10 +20,12 @@ extension NetworkError: LocalizedError {
         switch self {
         case .invalidURL:
             return "Invalid URL"
-        case .connectionFailed:
+        case .notConnected:
             return "Connection failed"
         case .invalidResponse:
             return "Invalid response"
+        case .requestCancelled:
+            return "Request cancelled"
         case .requestFailed(let reason):
             return reason ?? "Request failed"
         }

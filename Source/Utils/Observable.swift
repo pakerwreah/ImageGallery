@@ -18,8 +18,12 @@ class Observable<T> {
 
     var value: T {
         didSet {
-            observer?(self.value)
+            notify()
         }
+    }
+
+    func notify() {
+        observer?(self.value)
     }
 
     func bind(on dispatchQueue: DispatchQueue = .main, observer: @escaping Observer) {
