@@ -15,12 +15,6 @@ class GalleryCell: UICollectionViewCell {
 
     var viewModel: PhotoViewModel? {
         didSet {
-            if let old = oldValue {
-                old.removeObservers()
-                old.abortRequest()
-                old.freeMemory()
-            }
-
             imageView.layer.removeAllAnimations()
             imageView.alpha = 0
 

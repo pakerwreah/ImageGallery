@@ -30,23 +30,23 @@ class PhotoViewModel {
     }
 
     func downloadImage() {
-        if !isLoading.value {
-            isLoading.value = true
-            downloadFailed.value = nil
+        isLoading.value = true
+        downloadFailed.value = nil
+        imageData.value = nil
 
-            imageRequest = provider.downloadImage(photo: model, size: size) { [weak self] result in
-                guard let self = self else { return }
+        imageRequest = provider.downloadImage(photo: model, size: size) { [weak self] result in
+            guard let self = self else { return }
 
+            switch result {
+            case .success(let data):
                 self.isLoading.value = false
+                self.imageData.value = data
 
-                switch result {
-                case .success(let data):
-                    self.imageData.value = data
+            case .failure(.requestCancelled): ()
 
-                case .failure(let error):
-                    self.downloadFailed.value = error
-                    self.imageData.value = nil
-                }
+            case .failure(let error):
+                self.isLoading.value = false
+                self.downloadFailed.value = error
             }
         }
     }
@@ -59,7 +59,6 @@ class PhotoViewModel {
 
     func abortRequest() {
         imageRequest?.task.cancel()
-        isLoading.value = false
     }
 
     func freeMemory() {

@@ -140,6 +140,18 @@ extension GalleryViewController: UICollectionViewDelegate {
             viewModel.fetchImages()
         }
     }
+
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+
+        if !viewModel.photos.isEmpty {
+            let cellViewModel = viewModel.photos[indexPath.row]
+
+            cellViewModel.removeObservers()
+            cellViewModel.abortRequest()
+            cellViewModel.freeMemory()
+        }
+
+    }
 }
 
 //MARK: - Data Source
