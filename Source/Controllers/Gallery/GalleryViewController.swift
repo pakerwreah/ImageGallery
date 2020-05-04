@@ -16,8 +16,8 @@ class GalleryViewController: UIViewController {
     private let cellIdentifier = "GalleryCell"
     private let viewModel: GalleryViewModel
 
-    init(provider: PhotosSearchProvider) {
-        viewModel = GalleryViewModel(provider: provider)
+    init(viewModel: GalleryViewModel) {
+        self.viewModel = viewModel
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -79,26 +79,30 @@ class GalleryViewController: UIViewController {
 extension GalleryViewController {
     func configureObservers() {
 
-        viewModel.isLoading.bind { value in
+        viewModel.isLoading.bind { [weak self] isLoading in
+            guard let self = self else { return }
+
             // if it is the first fetch, show loading indicator
-            if value, self.viewModel.photos.isEmpty {
+            if isLoading, self.viewModel.photos.isEmpty {
                 self.loadingIndicator?.startAnimating()
             } else {
                 self.loadingIndicator?.stopAnimating()
             }
         }
 
-        viewModel.insertedItems.bind { value in
-            if !value.isEmpty {
-                self.grid.insertItems(at: value)
+        viewModel.insertedItems.bind { [weak self] items in
+            if !items.isEmpty {
+                self?.grid.insertItems(at: items)
             }
         }
 
-        viewModel.requestFailed.bind { value in
-            self.present(Alert(title: "Error loading images", message: value), animated: true)
-        }
-    }
+        viewModel.requestFailed.bind { [weak self] error in
+            guard let self = self, let error = error else { return }
 
+            self.present(Alert(title: "Error loading images", message: error.localizedDescription), animated: true)
+        }
+
+    }
 }
 
 //MARK: - TextField Delegate
@@ -125,28 +129,9 @@ extension GalleryViewController: UISearchBarDelegate {
 extension GalleryViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 
-//        if !isLoading {
-//            isLoading = true
-//
-//            let photo = PhotoViewModel(model: photos[indexPath.row].model, provider: provider)
-//
-//            // TODO: convert to MVVM
-//            // download big photo
-//            provider.downloadImage(photo: photos[indexPath.row].model, size: .big) { result in
-//                DispatchQueue.main.async {
-//                    switch result {
-//                    case .success(let data):
-//                        // show big photo in fullscreen
-//                        if let image = UIImage(data: data) {
-//                            self.present(PhotoViewController(image: image, text: photo.title), animated: true)
-//                        }
-//                    case .failure(let error):
-//                        self.present(Alert(title: "Error loading image", message: error.localizedDescription), animated: true)
-//                    }
-//                }
-//                self.isLoading = false
-//            }
-//        }
+        let photoDetail = viewModel.photoDetailViewModel(forItemAt: indexPath)
+
+        present(PhotoDetailViewController(viewModel: photoDetail), animated: true)
     }
 
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {

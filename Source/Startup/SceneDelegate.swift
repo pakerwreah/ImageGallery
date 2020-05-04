@@ -19,7 +19,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             
             let photoProvider = FlickrSearchProvider(apikey: FlickrConfig().apikey)
             
-            let homeController = GalleryViewController(provider: photoProvider)
+            let viewModel = GalleryViewModel(provider: photoProvider)
+            
+            let homeController = GalleryViewController(viewModel: viewModel)
             
             let navigationController = UINavigationController(rootViewController: homeController)
             

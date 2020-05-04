@@ -1,5 +1,5 @@
 //
-//  GalleryCell.swift
+//  PhotoViewController.swift
 //  ImageGallery
 //
 //  Created by Carlos on 01/05/20.
@@ -7,38 +7,43 @@
 
 import UIKit
 
-class GalleryCell: UICollectionViewCell {
+class PhotoDetailViewController: UIViewController {
 
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var reloadButton: UIButton!
+    @IBOutlet weak var textLabel: UILabel!
 
-    var viewModel: PhotoViewModel? {
-        didSet {
-            if let old = oldValue {
-                old.removeObservers()
-                old.abortRequest()
-                old.freeMemory()
-            }
+    private let viewModel: PhotoDetailViewModel
 
-            imageView.layer.removeAllAnimations()
-            imageView.alpha = 0
+    init(viewModel: PhotoDetailViewModel) {
+        self.viewModel = viewModel
 
-            configureObservers()
+        super.init(nibName: nil, bundle: nil)
+    }
 
-            viewModel?.downloadImage()
+    required init?(coder aDecoder: NSCoder) {
+        fatalError()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        configureObservers()
+
+        viewModel.downloadImage()
+
+        if viewModel.title.isBlank {
+            textLabel.isHidden = true
+        } else {
+            textLabel.text = viewModel.title
         }
     }
 
-    @IBAction func reload(_ sender: Any) {
-        viewModel?.downloadImage()
-    }
 }
 
 //MARK: - Observers
-extension GalleryCell {
+extension PhotoDetailViewController {
     func configureObservers() {
-        guard let viewModel = viewModel else { return }
 
         viewModel.imageData.bind { [weak self] imageData in
             guard let self = self else { return }
@@ -62,9 +67,13 @@ extension GalleryCell {
         }
 
         viewModel.downloadFailed.bind { [weak self] error in
-            guard let self = self else { return }
+            guard let self = self, let error = error else { return }
 
-            self.reloadButton.isHidden = error == nil
+            let alert = Alert(title: "Error loading image", message: error.localizedDescription) {
+                self.dismiss(animated: true)
+            }
+
+            self.present(alert, animated: true)
         }
 
     }

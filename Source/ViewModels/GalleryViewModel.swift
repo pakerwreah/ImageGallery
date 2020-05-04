@@ -11,10 +11,10 @@ class GalleryViewModel {
     private let provider: PhotosSearchProvider
     private var fetchRequest: NetworkRequest?
 
-    var photos: [PhotoViewModel] = []
-    
+    var photos: [GalleryCellViewModel] = []
+
     let isLoading = Observable<Bool>(false)
-    let requestFailed = Observable<String?>(nil)
+    let requestFailed = Observable<NetworkError?>(nil)
     let insertedItems = Observable<[IndexPath]>([])
 
     var searchText: String = "" {
@@ -26,11 +26,15 @@ class GalleryViewModel {
     init(provider: PhotosSearchProvider) {
         self.provider = provider
 
-        URLCache.shared.removeAllCachedResponses() // FIXME: remove
+        URLCache.shared.removeAllCachedResponses()
     }
 
     deinit {
         abortRequest()
+    }
+
+    func photoDetailViewModel(forItemAt indexPath: IndexPath) -> PhotoDetailViewModel {
+        return PhotoDetailViewModel(model: photos[indexPath.row].model, provider: provider)
     }
 
     func fetchImages() {
@@ -50,7 +54,7 @@ class GalleryViewModel {
             if !newPhotos.isEmpty {
                 // append the photos to the end of the collection view
                 photos.append(contentsOf: newPhotos.map {
-                    PhotoViewModel(model: $0, provider: provider, size: .small)
+                    GalleryCellViewModel(model: $0, provider: provider)
                 })
                 let total = photos.count
                 let range = max(total - newPhotos.count, 0) ..< total
@@ -58,7 +62,7 @@ class GalleryViewModel {
             }
 
         case .failure(let error):
-            self.requestFailed.value = error.localizedDescription
+            self.requestFailed.value = error
         }
     }
 

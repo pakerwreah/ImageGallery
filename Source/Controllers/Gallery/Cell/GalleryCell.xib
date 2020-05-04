@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="dark"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -19,20 +19,47 @@
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="nMS-bZ-U5I">
                         <rect key="frame" x="0.0" y="0.0" width="218" height="180"/>
                     </imageView>
+                    <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="HgN-sO-EF8">
+                        <rect key="frame" x="99" y="80" width="20" height="20"/>
+                    </activityIndicatorView>
+                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jrl-tb-rrn">
+                        <rect key="frame" x="0.0" y="0.0" width="218" height="180"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                        <color key="tintColor" systemColor="secondaryLabelColor" red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+                        <state key="normal" image="arrow.counterclockwise.icloud.fill" catalog="system">
+                            <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="30"/>
+                        </state>
+                        <connections>
+                            <action selector="reload:" destination="gTV-IL-0wX" eventType="touchUpInside" id="kcy-JC-cul"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
             <constraints>
+                <constraint firstAttribute="bottom" secondItem="Jrl-tb-rrn" secondAttribute="bottom" id="34M-CN-MnG"/>
+                <constraint firstItem="Jrl-tb-rrn" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="3y2-Yn-Xkn"/>
                 <constraint firstItem="nMS-bZ-U5I" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="FQV-Sn-4RB"/>
+                <constraint firstItem="Jrl-tb-rrn" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="GFH-ky-wg3"/>
+                <constraint firstAttribute="trailing" secondItem="Jrl-tb-rrn" secondAttribute="trailing" id="IRW-uD-Fav"/>
                 <constraint firstItem="nMS-bZ-U5I" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="MHb-oI-tAw"/>
                 <constraint firstAttribute="trailing" secondItem="nMS-bZ-U5I" secondAttribute="trailing" id="PfK-kN-kWv"/>
+                <constraint firstItem="HgN-sO-EF8" firstAttribute="centerY" secondItem="gTV-IL-0wX" secondAttribute="centerY" id="PlZ-uE-Bdb"/>
+                <constraint firstItem="Jrl-tb-rrn" firstAttribute="centerY" secondItem="gTV-IL-0wX" secondAttribute="centerY" id="bel-Rm-UTv"/>
+                <constraint firstItem="HgN-sO-EF8" firstAttribute="centerX" secondItem="gTV-IL-0wX" secondAttribute="centerX" id="lbD-Iq-urB"/>
+                <constraint firstItem="Jrl-tb-rrn" firstAttribute="centerX" secondItem="gTV-IL-0wX" secondAttribute="centerX" id="p68-bJ-NyL"/>
                 <constraint firstAttribute="bottom" secondItem="nMS-bZ-U5I" secondAttribute="bottom" id="x62-wV-VE5"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <size key="customSize" width="218" height="180"/>
             <connections>
                 <outlet property="imageView" destination="nMS-bZ-U5I" id="6m3-lu-yLp"/>
+                <outlet property="loadingIndicator" destination="HgN-sO-EF8" id="1Yl-0h-A5i"/>
+                <outlet property="reloadButton" destination="Jrl-tb-rrn" id="3cW-pU-dsa"/>
             </connections>
             <point key="canvasLocation" x="-117.39130434782609" y="22.767857142857142"/>
         </collectionViewCell>
     </objects>
+    <resources>
+        <image name="arrow.counterclockwise.icloud.fill" catalog="system" width="128" height="88"/>
+    </resources>
 </document>

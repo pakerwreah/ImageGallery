@@ -8,9 +8,9 @@
 import Foundation
 
 enum NetworkTimeout: TimeInterval {
-    case quick = 10
-    case normal = 30
-    case long = 60
+    case quick = 5
+    case normal = 10
+    case long = 15
 }
 
 class Network: NetworkProvider {
