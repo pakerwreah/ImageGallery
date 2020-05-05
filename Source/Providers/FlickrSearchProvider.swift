@@ -13,6 +13,8 @@ class FlickrSearchProvider: PhotosSearchProvider {
     private var page = 0
     private var totalPages = 0
     private var search = ""
+    
+    var itemsPerPage = 32
 
     private var network: NetworkProvider
 
@@ -35,7 +37,7 @@ class FlickrSearchProvider: PhotosSearchProvider {
             return nil
         }
 
-        let url = flickrUrl(method: "search", params: ["tags": search, "page": page + 1])
+        let url = flickrUrl(method: "search", params: ["tags": search, "page": page + 1, "per_page": itemsPerPage])
 
         return network.request(url: url) { [weak self] result in
             guard let self = self else { return }
@@ -123,7 +125,6 @@ class FlickrSearchProvider: PhotosSearchProvider {
 
         var queryItems = [
             URLQueryItem(name: "method", value: "flickr.photos.\(method)"),
-            URLQueryItem(name: "per_page", value: "32"),
             URLQueryItem(name: "format", value: "json"),
             URLQueryItem(name: "nojsoncallback", value: "1"),
             URLQueryItem(name: "api_key", value: apikey)

@@ -42,6 +42,8 @@
 		34CDBA54246070D2002FEE74 /* GalleryCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CDBA52246070D2002FEE74 /* GalleryCellViewModel.swift */; };
 		34CDBA56246071A8002FEE74 /* PhotoDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CDBA55246071A8002FEE74 /* PhotoDetailViewModel.swift */; };
 		34CDBA57246071A8002FEE74 /* PhotoDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CDBA55246071A8002FEE74 /* PhotoDetailViewModel.swift */; };
+		34CDBA592460CB88002FEE74 /* GalleryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CDBA582460CB88002FEE74 /* GalleryViewModelTests.swift */; };
+		34CDBA5B2460E004002FEE74 /* PhotoViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CDBA5A2460E004002FEE74 /* PhotoViewModelTests.swift */; };
 		34DE7B1224145B68004B455A /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34DE7B1124145B68004B455A /* Alert.swift */; };
 		34DE7B1724146E49004B455A /* PhotoDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34DE7B1524146E49004B455A /* PhotoDetailViewController.swift */; };
 		34DE7B1824146E49004B455A /* PhotoDetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 34DE7B1624146E49004B455A /* PhotoDetailViewController.xib */; };
@@ -97,6 +99,8 @@
 		34C53A6B2414578B00372A92 /* StringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
 		34CDBA52246070D2002FEE74 /* GalleryCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryCellViewModel.swift; sourceTree = "<group>"; };
 		34CDBA55246071A8002FEE74 /* PhotoDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDetailViewModel.swift; sourceTree = "<group>"; };
+		34CDBA582460CB88002FEE74 /* GalleryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewModelTests.swift; sourceTree = "<group>"; };
+		34CDBA5A2460E004002FEE74 /* PhotoViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewModelTests.swift; sourceTree = "<group>"; };
 		34DE7B1124145B68004B455A /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		34DE7B1524146E49004B455A /* PhotoDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDetailViewController.swift; sourceTree = "<group>"; };
 		34DE7B1624146E49004B455A /* PhotoDetailViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PhotoDetailViewController.xib; sourceTree = "<group>"; };
@@ -194,6 +198,8 @@
 				34DE7B1924156746004B455A /* FlickrSearchTests.swift */,
 				34DE7B2524159624004B455A /* FlickrDownloadTests.swift */,
 				34DE7B272415966F004B455A /* FlickrTests.swift */,
+				34CDBA582460CB88002FEE74 /* GalleryViewModelTests.swift */,
+				34CDBA5A2460E004002FEE74 /* PhotoViewModelTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -444,6 +450,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				34CDBA57246071A8002FEE74 /* PhotoDetailViewModel.swift in Sources */,
+				34CDBA592460CB88002FEE74 /* GalleryViewModelTests.swift in Sources */,
 				34DE7B282415966F004B455A /* FlickrTests.swift in Sources */,
 				346AC2FE245D321E0043AFAE /* Observable.swift in Sources */,
 				346AC308245D40D50043AFAE /* BuildConfig.swift in Sources */,
@@ -451,6 +458,7 @@
 				34DE7B2624159624004B455A /* FlickrDownloadTests.swift in Sources */,
 				34DE7B2124156B67004B455A /* PhotoModel.swift in Sources */,
 				34CDBA54246070D2002FEE74 /* GalleryCellViewModel.swift in Sources */,
+				34CDBA5B2460E004002FEE74 /* PhotoViewModelTests.swift in Sources */,
 				34DE7B1F24156B55004B455A /* Reachability.swift in Sources */,
 				346AC2FA245CE7550043AFAE /* MockedNetwork.swift in Sources */,
 				34DE7B1B24156809004B455A /* FlickrSearchProvider.swift in Sources */,
