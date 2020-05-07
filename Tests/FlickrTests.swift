@@ -14,7 +14,7 @@ class FlickrTests: XCTestCase {
 
     var provider: FlickrSearchProvider!
     
-    var observable = Set<AnyCancellable>()
+    var observers = Set<AnyCancellable>()
 
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.

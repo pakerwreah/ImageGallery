@@ -6,22 +6,21 @@
 //
 
 import Foundation
+import Combine
 
-class MockedNetwork: Network {
+class MockedNetwork: CachedNetworkProvider {
     private let intercept: (String) -> String?
     
     init(intercept: @escaping (String) -> String?) {
         self.intercept = intercept
     }
     
-    override func request(url: String, completion: @escaping (Result<Data, NetworkError>) -> Void) -> NetworkRequest? {
+    override func request(url: String, timeout: NetworkTimeout) -> AnyPublisher<Data, NetworkError> {
 
         if let data = intercept(url)?.data(using: .utf8) {
-            completion(.success(data))
+            return .just(data)
         } else {
-            return super.request(url: url, completion: completion)
+            return super.request(url: url, timeout: timeout)
         }
-        
-        return nil
     }
 }

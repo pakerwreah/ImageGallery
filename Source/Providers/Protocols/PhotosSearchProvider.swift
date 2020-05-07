@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 enum ImageSize {
     case small
@@ -16,7 +17,7 @@ protocol PhotosSearchProvider {
     // returns itself to chain calls
     @discardableResult func prepare(search: String) -> PhotosSearchProvider
     // returns task if has elements to fetch, nil otherwise
-    @discardableResult func fetch(completion: @escaping (Result<[PhotoModel], NetworkError>) -> Void) -> NetworkRequest?
+    func fetch() -> AnyPublisher<[PhotoModel], NetworkError>
     // download image with given size
-    @discardableResult func downloadImage(photo: PhotoModel, size: ImageSize, completion: @escaping (Result<Data, NetworkError>) -> Void) -> NetworkRequest?
+    func downloadImage(photo: PhotoModel, size: ImageSize) -> AnyPublisher<Data, NetworkError>
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 class FlickrSearchProvider: PhotosSearchProvider {
 
@@ -13,12 +14,12 @@ class FlickrSearchProvider: PhotosSearchProvider {
     private var page = 0
     private var totalPages = 0
     private var search = ""
-    
+
     var itemsPerPage = 32
 
     private var network: NetworkProvider
 
-    init(apikey: String, networkProvider: NetworkProvider = Network(cachePolicy: .returnCacheDataElseLoad, timeout: .quick)) {
+    init(apikey: String, networkProvider: NetworkProvider = CachedNetworkProvider(cachePolicy: .returnCacheDataElseLoad, timeout: .quick)) {
         self.apikey = apikey
         self.network = networkProvider
     }
@@ -31,74 +32,32 @@ class FlickrSearchProvider: PhotosSearchProvider {
         return self
     }
 
-    @discardableResult func fetch(completion: @escaping (Result<[PhotoModel], NetworkError>) -> Void) -> NetworkRequest? {
+    func fetch() -> AnyPublisher<[PhotoModel], NetworkError> {
         guard page < totalPages else {
-            completion(.success([]))
-            return nil
+            return .just([])
         }
 
         let url = flickrUrl(method: "search", params: ["tags": search, "page": page + 1, "per_page": itemsPerPage])
 
-        return network.request(url: url) { [weak self] result in
-            guard let self = self else { return }
+        return network.request(url: url)
+            .decode(type: FlickrSearchResults.self, decoder: JSONDecoder())
+            .map { [weak self] sizeResults in
+                guard let self = self else { return [] }
 
-            switch result {
-            case .success(let data):
-                if let sizeResults = try? JSONDecoder().decode(FlickrSearchResults.self, from: data) {
-                    let photos = sizeResults.photos
-                    self.page = photos.page
-                    self.totalPages = photos.pages
-                    completion(.success(photos.photo))
-                } else {
-                    completion(.failure(.invalidResponse))
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+                let photos = sizeResults.photos
+                self.page = photos.page
+                self.totalPages = photos.pages
+
+                return photos.photo
+            }.mapError { error in
+                error as? NetworkError ?? .invalidResponse
+            }.eraseToAnyPublisher()
     }
 
-    @discardableResult func downloadImage(photo: PhotoModel, size: ImageSize, completion: @escaping (Result<Data, NetworkError>) -> Void) -> NetworkRequest? {
+    func downloadImage(photo: PhotoModel, size: ImageSize) -> AnyPublisher<Data, NetworkError> {
 
-        var request: NetworkRequest? = nil
+        let url = flickrUrl(method: "getSizes", params: ["photo_id": photo.id])
 
-        request = getSizes(id: photo.id) { result in
-
-            switch result {
-            case .success(let sizes):
-
-                // update request reference with new task
-                if let sizeRequest = self.downloadSize(sizes: sizes, size: size, completion: completion) {
-                    request?.copy(sizeRequest)
-                }
-
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-
-        return request
-    }
-
-    private func getSizes(id: String, completion: @escaping (Result<[FlickrSizeModel], NetworkError>) -> Void) -> NetworkRequest? {
-
-        let url = flickrUrl(method: "getSizes", params: ["photo_id": id])
-
-        return network.request(url: url) { result in
-            switch result {
-            case .success(let data):
-                if let sizeResults = try? JSONDecoder().decode(FlickrSizeResults.self, from: data) {
-                    completion(.success(sizeResults.sizes.size))
-                } else {
-                    completion(.failure(.invalidResponse))
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-
-    private func downloadSize(sizes: [FlickrSizeModel], size: ImageSize, completion: @escaping (Result<Data, NetworkError>) -> Void) -> NetworkRequest? {
         let label: String
 
         switch size {
@@ -107,14 +66,22 @@ class FlickrSearchProvider: PhotosSearchProvider {
         case .big:
             label = "Large"
         }
+        
+        let network = self.network
 
-        if let photo = sizes.first(where: { $0.label == label }) {
-            return network.request(url: photo.source, completion: completion)
-        } else {
-            completion(.failure(.requestFailed("\(label) size not found")))
-        }
-
-        return nil
+        return network.request(url: url)
+            .decode(type: FlickrSizeResults.self, decoder: JSONDecoder())
+            .map { $0.sizes.size }
+            .tryMap { sizes in
+                if let photo = sizes.first(where: { $0.label == label }) {
+                    return photo.source
+                } else {
+                    throw NetworkError.requestFailed("\(label) size not found")
+                }
+            }
+            .mapError { $0 as? NetworkError ?? .invalidResponse }
+            .flatMap { network.request(url: $0) }
+            .eraseToAnyPublisher()
     }
 
     private func flickrUrl(method: String, params: [String: Any]) -> String {

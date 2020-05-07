@@ -6,10 +6,11 @@
 //
 
 import Foundation
+import Combine
 
 class PhotoViewModel {
     private let provider: PhotosSearchProvider
-    private var imageRequest: NetworkRequest?
+    private var imageRequest: AnyCancellable?
     private let size: ImageSize
 
     let model: PhotoModel
@@ -33,25 +34,28 @@ class PhotoViewModel {
         downloadFailed = nil
         imageData = nil
 
-        imageRequest = provider.downloadImage(photo: model, size: size) { [weak self] result in
-            guard let self = self else { return }
+        imageRequest = provider.downloadImage(photo: model, size: size)
+            .sink(receiveCompletion: { [weak self] completion in
+                guard let self = self else { return }
 
-            switch result {
-            case .success(let data):
-                self.isLoading = false
-                self.imageData = data
+                switch completion {
+                case .failure(.requestCancelled): ()
 
-            case .failure(.requestCancelled): ()
+                case .failure(let error):
+                    self.isLoading = false
+                    self.downloadFailed = error
 
-            case .failure(let error):
-                self.isLoading = false
-                self.downloadFailed = error
-            }
-        }
+                case .finished:
+                    self.isLoading = false
+                    break
+                }
+            }, receiveValue: { [weak self] data in
+                self?.imageData = data
+            })
     }
 
     func abortRequest() {
-        imageRequest?.task.cancel()
+        imageRequest?.cancel()
     }
 
     func freeMemory() {
