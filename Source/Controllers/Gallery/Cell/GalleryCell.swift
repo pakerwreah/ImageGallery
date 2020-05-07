@@ -6,12 +6,15 @@
 //
 
 import UIKit
+import Combine
 
 class GalleryCell: UICollectionViewCell {
 
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
     @IBOutlet weak var reloadButton: UIButton!
+
+    private var observers = Set<AnyCancellable>()
 
     var viewModel: PhotoViewModel? {
         didSet {
@@ -34,32 +37,35 @@ extension GalleryCell {
     func configureObservers() {
         guard let viewModel = viewModel else { return }
 
-        viewModel.imageData.bind { [weak self] imageData in
-            guard let self = self else { return }
+        viewModel.$imageData
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] imageData in
+                guard let self = self else { return }
 
-            if let data = imageData, let image = UIImage(data: data) {
-                self.imageView.image = image
-                UIView.animate(withDuration: 0.3) {
-                    self.imageView.alpha = 1
+                if let data = imageData, let image = UIImage(data: data) {
+                    self.imageView.image = image
+                    UIView.animate(withDuration: 0.3) {
+                        self.imageView.alpha = 1
+                    }
                 }
-            }
-        }
+            }.store(in: &observers)
 
-        viewModel.isLoading.bind { [weak self] isLoading in
-            guard let self = self else { return }
+        viewModel.$isLoading
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.isLoading, on: loadingIndicator)
+            .store(in: &observers)
 
-            if isLoading {
-                self.loadingIndicator.startAnimating()
-            } else {
-                self.loadingIndicator.stopAnimating()
-            }
-        }
+        viewModel.$downloadFailed
+            .map { $0 == nil }
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.isHidden, on: reloadButton)
+            .store(in: &observers)
 
-        viewModel.downloadFailed.bind { [weak self] error in
-            guard let self = self else { return }
+    }
 
-            self.reloadButton.isHidden = error == nil
-        }
-
+    func recycle() {
+        observers.removeAll()
+        viewModel?.abortRequest()
+        viewModel?.freeMemory()
     }
 }

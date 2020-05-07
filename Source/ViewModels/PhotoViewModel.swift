@@ -14,9 +14,9 @@ class PhotoViewModel {
 
     let model: PhotoModel
 
-    let imageData = Observable<Data?>(nil)
-    let downloadFailed = Observable<NetworkError?>(nil)
-    let isLoading = Observable<Bool>(false)
+    @Published private(set) var imageData: Data?
+    @Published private(set) var downloadFailed: NetworkError?
+    @Published private(set) var isLoading = false
 
     init(model: PhotoModel, provider: PhotosSearchProvider, size: ImageSize) {
         self.model = model
@@ -25,36 +25,29 @@ class PhotoViewModel {
     }
 
     deinit {
-        removeObservers()
         abortRequest()
     }
 
     func downloadImage() {
-        isLoading.value = true
-        downloadFailed.value = nil
-        imageData.value = nil
+        isLoading = true
+        downloadFailed = nil
+        imageData = nil
 
         imageRequest = provider.downloadImage(photo: model, size: size) { [weak self] result in
             guard let self = self else { return }
 
             switch result {
             case .success(let data):
-                self.isLoading.value = false
-                self.imageData.value = data
+                self.isLoading = false
+                self.imageData = data
 
             case .failure(.requestCancelled): ()
 
             case .failure(let error):
-                self.isLoading.value = false
-                self.downloadFailed.value = error
+                self.isLoading = false
+                self.downloadFailed = error
             }
         }
-    }
-
-    func removeObservers() {
-        imageData.observer = nil
-        downloadFailed.observer = nil
-        isLoading.observer = nil
     }
 
     func abortRequest() {
@@ -62,6 +55,6 @@ class PhotoViewModel {
     }
 
     func freeMemory() {
-        imageData.value = nil
+        imageData = nil
     }
 }

@@ -20,26 +20,26 @@ class GalleryViewModelTests: FlickrTests {
 
         viewModel.searchText = "kitten"
 
-        XCTAssertFalse(viewModel.isLoading.value, "Should not be loading before request")
-        XCTAssertNil(viewModel.requestFailed.value, "Should not be failed before request")
+        XCTAssertFalse(viewModel.isLoading, "Should not be loading before request")
+        XCTAssertNil(viewModel.requestFailed, "Should not be failed before request")
 
-        viewModel.isLoading.bind { isLoading in
+        viewModel.$isLoading.dropFirst().sink { isLoading in
             if isLoading {
                 expShowLoading.fulfill()
             } else {
                 expHideLoading.fulfill()
             }
-        }
+        }.store(in: &observable)
 
-        viewModel.requestFailed.bind { error in
+        viewModel.$requestFailed.sink { error in
             XCTAssertNil(error, "Should not fail")
-        }
+        }.store(in: &observable)
 
-        viewModel.insertedItems.bind { items in
+        viewModel.insertedIndexes.sink { items in
             expReceiveItems.fulfill()
             let itemsPerPage = self.provider.itemsPerPage
             XCTAssertEqual(items.count, itemsPerPage, "Should return \(itemsPerPage) items per page")
-        }
+        }.store(in: &observable)
 
         viewModel.fetchImages()
 
@@ -47,7 +47,7 @@ class GalleryViewModelTests: FlickrTests {
             if let error = error {
                 XCTFail(error.localizedDescription)
             }
-            XCTAssertFalse(viewModel.isLoading.value, "Should not be loading after finished")
+            XCTAssertFalse(viewModel.isLoading, "Should not be loading after finished")
         }
     }
 

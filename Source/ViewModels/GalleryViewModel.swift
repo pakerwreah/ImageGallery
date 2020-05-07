@@ -6,16 +6,17 @@
 //
 
 import Foundation
+import Combine
 
 class GalleryViewModel {
     private let provider: PhotosSearchProvider
     private var fetchRequest: NetworkRequest?
 
-    var photos: [GalleryCellViewModel] = []
+    @Published private(set) var isLoading = false
+    @Published private(set) var requestFailed: NetworkError?
+    @Published private(set) var photos: [GalleryCellViewModel] = []
 
-    let isLoading = Observable<Bool>(false)
-    let requestFailed = Observable<NetworkError?>(nil)
-    let insertedItems = Observable<[IndexPath]>([])
+    let insertedIndexes = PassthroughSubject<[IndexPath], Never>()
 
     var searchText: String = "" {
         didSet {
@@ -34,15 +35,19 @@ class GalleryViewModel {
     }
 
     func photoDetailViewModel(forItemAt indexPath: IndexPath) -> PhotoDetailViewModel {
-        return PhotoDetailViewModel(model: photos[indexPath.row].model, provider: provider)
+        return PhotoDetailViewModel(model: photos[indexPath.row].photoViewModel.model, provider: provider)
+    }
+
+    func removeAll() {
+        photos.removeAll()
     }
 
     func fetchImages() {
-        if !isLoading.value {
-            isLoading.value = true
+        if !isLoading {
+            isLoading = true
 
             fetchRequest = provider.fetch { [weak self] result in
-                self?.isLoading.value = false
+                self?.isLoading = false
                 self?.fetchResult(result)
             }
         }
@@ -58,11 +63,11 @@ class GalleryViewModel {
                 })
                 let total = photos.count
                 let range = max(total - newPhotos.count, 0) ..< total
-                insertedItems.value = range.map { IndexPath(row: $0, section: 0) }
+                insertedIndexes.send(range.map { IndexPath(row: $0, section: 0) })
             }
 
         case .failure(let error):
-            self.requestFailed.value = error
+            self.requestFailed = error
         }
     }
 
