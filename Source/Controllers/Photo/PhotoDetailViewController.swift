@@ -20,6 +20,7 @@ class PhotoDetailViewController: UIViewController {
     }
 
     private var observers = Set<AnyCancellable>()
+    private var download: AnyCancellable?
 
     init(viewModel: PhotoDetailViewModel) {
         self.viewModelDetail = viewModel
@@ -36,7 +37,7 @@ class PhotoDetailViewController: UIViewController {
 
         configureObservers()
 
-        viewModel.downloadImage()
+        download = viewModel.downloadImage()
 
         if viewModelDetail.title.isBlank {
             textLabel.isHidden = true

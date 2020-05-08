@@ -10,7 +10,6 @@ import Combine
 
 class PhotoViewModel {
     private let provider: PhotosSearchProvider
-    private var imageRequest: AnyCancellable?
     private let size: ImageSize
 
     let model: PhotoModel
@@ -25,16 +24,12 @@ class PhotoViewModel {
         self.size = size
     }
 
-    deinit {
-        abortRequest()
-    }
-
-    func downloadImage() {
+    func downloadImage() -> AnyCancellable {
         isLoading = true
         downloadFailed = nil
         imageData = nil
 
-        imageRequest = provider.downloadImage(photo: model, size: size)
+        return provider.downloadImage(photo: model, size: size)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
 
@@ -50,12 +45,10 @@ class PhotoViewModel {
                     break
                 }
             }, receiveValue: { [weak self] data in
-                self?.imageData = data
-            })
-    }
+                guard let self = self else { return }
 
-    func abortRequest() {
-        imageRequest?.cancel()
+                self.imageData = data
+            })
     }
 
     func freeMemory() {

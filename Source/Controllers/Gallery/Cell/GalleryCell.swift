@@ -15,20 +15,37 @@ class GalleryCell: UICollectionViewCell {
     @IBOutlet weak var reloadButton: UIButton!
 
     private var observers = Set<AnyCancellable>()
+    private var disposables = Set<AnyCancellable>()
+    private var download: AnyCancellable?
+
+    private let debouncer = PassthroughSubject<Void, Never>()
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+
+        debouncer.debounce(for: .seconds(0.3), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                
+                self.download = self.viewModel?.downloadImage()
+                
+            }.store(in: &disposables)
+    }
 
     var viewModel: PhotoViewModel? {
         didSet {
-            imageView.layer.removeAllAnimations()
-            imageView.alpha = 0
-
+            recycle()
+            
             configureObservers()
-
-            viewModel?.downloadImage()
+            
+            imageView.image = nil
+            
+            debouncer.send()
         }
     }
 
     @IBAction func reload(_ sender: Any) {
-        viewModel?.downloadImage()
+        download = viewModel?.downloadImage()
     }
 }
 
@@ -41,8 +58,10 @@ extension GalleryCell {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] imageData in
                 guard let self = self else { return }
-
+                
                 if let data = imageData, let image = UIImage(data: data) {
+                    self.imageView.layer.removeAllAnimations()
+                    self.imageView.alpha = 0
                     self.imageView.image = image
                     UIView.animate(withDuration: 0.3) {
                         self.imageView.alpha = 1
@@ -65,7 +84,6 @@ extension GalleryCell {
 
     func recycle() {
         observers.removeAll()
-        viewModel?.abortRequest()
         viewModel?.freeMemory()
     }
 }
