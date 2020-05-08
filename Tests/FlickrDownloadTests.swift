@@ -53,25 +53,29 @@ class FlickrDownloadTests: FlickrTests {
 
         let exp_small = expectation(description: "Small image downloaded")
 
-        provider.downloadImage(photo: photo, size: .small) { result in
-            switch result {
-            case .success(_): ()
-            case .failure(let error):
-                XCTFail(error.localizedDescription)
-            }
-            exp_small.fulfill()
-        }
+        provider.downloadImage(photo: photo, size: .small)
+            .sink(receiveCompletion: { result in
+                switch result {
+                case .finished: ()
+                case .failure(let error):
+                    XCTFail(error.localizedDescription)
+                }
+                exp_small.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &disposables)
 
         let exp_big = expectation(description: "Big image downloaded")
 
-        provider.downloadImage(photo: photo, size: .big) { result in
-            switch result {
-            case .success(_): ()
-            case .failure(let error):
-                XCTFail(error.localizedDescription)
-            }
-            exp_big.fulfill()
-        }
+        provider.downloadImage(photo: photo, size: .big)
+            .sink(receiveCompletion: { result in
+                switch result {
+                case .finished: ()
+                case .failure(let error):
+                    XCTFail(error.localizedDescription)
+                }
+                exp_big.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {
@@ -115,25 +119,29 @@ class FlickrDownloadTests: FlickrTests {
 
         let exp_small = expectation(description: "Small image not found")
 
-        provider.downloadImage(photo: photo, size: .small) { result in
-            switch result {
-            case .success(_):
-                XCTFail("Small image size does not exist")
-            case .failure(_): ()
-            }
-            exp_small.fulfill()
-        }
+        provider.downloadImage(photo: photo, size: .small)
+            .sink(receiveCompletion: { result in
+                switch result {
+                case .finished:
+                    XCTFail("Small image size does not exist")
+                case .failure: ()
+                }
+                exp_small.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &disposables)
 
         let exp_big = expectation(description: "Big image not found")
 
-        provider.downloadImage(photo: photo, size: .big) { result in
-            switch result {
-            case .success(_):
-                XCTFail("Big image size does not exist")
-            case .failure(_): ()
-            }
-            exp_big.fulfill()
-        }
+        provider.downloadImage(photo: photo, size: .big)
+            .sink(receiveCompletion: { result in
+                switch result {
+                case .finished:
+                    XCTFail("Big image size does not exist")
+                case .failure: ()
+                }
+                exp_big.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {
@@ -177,14 +185,16 @@ class FlickrDownloadTests: FlickrTests {
 
         let exp = expectation(description: "Image not found")
 
-        provider.downloadImage(photo: photo, size: .big) { result in
-            switch result {
-            case .success(_):
-                XCTFail("Image does not exists")
-            case .failure(_): ()
-            }
-            exp.fulfill()
-        }
+        provider.downloadImage(photo: photo, size: .big)
+            .sink(receiveCompletion: { result in
+                switch result {
+                case .finished:
+                    XCTFail("Image does not exists")
+                case .failure: ()
+                }
+                exp.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {

@@ -7,12 +7,27 @@
 
 import Foundation
 
-class PhotoDetailViewModel: PhotoViewModel {
+//FIXME: There is a bug with @Publish + inheritance
+
+//class PhotoDetailViewModel: PhotoViewModel {
+//    init(model: PhotoModel, provider: PhotosSearchProvider) {
+//        super.init(model: model, provider: provider, size: .big)
+//    }
+//
+//    var title: String {
+//        model.title.capitalizingFirst
+//    }
+//}
+
+
+class PhotoDetailViewModel {
+    let photoViewModel: PhotoViewModel
+
     init(model: PhotoModel, provider: PhotosSearchProvider) {
-        super.init(model: model, provider: provider, size: .big)
+        photoViewModel = PhotoViewModel(model: model, provider: provider, size: .big)
     }
     
     var title: String {
-        model.title.capitalizingFirst
+        photoViewModel.model.title.capitalizingFirst
     }
 }

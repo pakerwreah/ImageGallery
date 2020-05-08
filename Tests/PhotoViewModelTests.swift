@@ -20,81 +20,81 @@ class PhotoViewModelTests: FlickrTests {
     func testDownloadImage() {
         let photo = TestPhotoModel(id: "49856895562", title: "Title test")
 
-        let viewModel = GalleryCellViewModel(model: photo, provider: provider)
+        let viewModel = GalleryCellViewModel(model: photo, provider: provider).photoViewModel
 
         let expShowLoading = expectation(description: "Show loading")
         let expHideLoading = expectation(description: "Hide loading")
         let expReceiveImage = expectation(description: "Receive image data")
 
-        XCTAssertFalse(viewModel.isLoading.value, "Should not be loading before request")
-        XCTAssertNil(viewModel.downloadFailed.value, "Should not be failed before request")
+        XCTAssertFalse(viewModel.isLoading, "Should not be loading before request")
+        XCTAssertNil(viewModel.downloadFailed, "Should not be failed before request")
 
-        viewModel.isLoading.bind { isLoading in
+        viewModel.$isLoading.dropFirst().sink { isLoading in
             if isLoading {
                 expShowLoading.fulfill()
             } else {
                 expHideLoading.fulfill()
             }
-        }
+        }.store(in: &disposables)
 
-        viewModel.downloadFailed.bind { error in
+        viewModel.$downloadFailed.sink { error in
             XCTAssertNil(error, "Should not fail")
-        }
+        }.store(in: &disposables)
 
-        viewModel.imageData.bind { data in
+        viewModel.$imageData.sink { data in
             if data != nil {
                 expReceiveImage.fulfill()
             }
-        }
+        }.store(in: &disposables)
 
-        viewModel.downloadImage()
+        viewModel.downloadImage().store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {
                 XCTFail(error.localizedDescription)
             }
-            XCTAssertFalse(viewModel.isLoading.value, "Should not be loading after finished")
-            XCTAssertNotNil(viewModel.imageData.value, "Image data should not be nil")
+            XCTAssertFalse(viewModel.isLoading, "Should not be loading after finished")
+            XCTAssertNotNil(viewModel.imageData, "Image data should not be nil")
         }
     }
 
     func testDownloadImageFail() {
         let photo = TestPhotoModel(id: "0000000000", title: "No image")
 
-        let viewModel = GalleryCellViewModel(model: photo, provider: provider)
+        let viewModel = GalleryCellViewModel(model: photo, provider: provider).photoViewModel
 
         let expShowLoading = expectation(description: "Show loading")
         let expHideLoading = expectation(description: "Hide loading")
         let expDownloadFail = expectation(description: "Download fail")
 
-        XCTAssertFalse(viewModel.isLoading.value, "Should not be loading before request")
-        XCTAssertNil(viewModel.downloadFailed.value, "Should not be failed before request")
+        XCTAssertFalse(viewModel.isLoading, "Should not be loading before request")
+        XCTAssertNil(viewModel.downloadFailed, "Should not be failed before request")
 
-        viewModel.isLoading.bind { isLoading in
+        viewModel.$isLoading.dropFirst().sink { isLoading in
             if isLoading {
                 expShowLoading.fulfill()
             } else {
                 expHideLoading.fulfill()
             }
-        }
+        }.store(in: &disposables)
 
-        viewModel.downloadFailed.bind { error in
+        viewModel.$downloadFailed.sink { error in
             if error != nil {
                 expDownloadFail.fulfill()
             }
-        }
+        }.store(in: &disposables)
 
-        viewModel.imageData.bind { data in
+        viewModel.$imageData.sink { data in
             XCTAssertNil(data, "Should not receive image")
-        }
+        }.store(in: &disposables)
 
-        viewModel.downloadImage()
+        viewModel.downloadImage().store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {
                 XCTFail(error.localizedDescription)
             }
-            XCTAssertFalse(viewModel.isLoading.value, "Should not be loading after finished")
+            XCTAssertFalse(viewModel.isLoading, "Should not be loading after finished")
         }
     }
 }

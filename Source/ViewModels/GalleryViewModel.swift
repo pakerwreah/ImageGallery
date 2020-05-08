@@ -6,16 +6,17 @@
 //
 
 import Foundation
+import Combine
 
 class GalleryViewModel {
     private let provider: PhotosSearchProvider
-    private var fetchRequest: NetworkRequest?
+    private var fetchRequest: AnyCancellable?
 
-    var photos: [GalleryCellViewModel] = []
+    @Published private(set) var isLoading = false
+    @Published private(set) var requestFailed: NetworkError?
+    @Published private(set) var photos: [GalleryCellViewModel] = []
 
-    let isLoading = Observable<Bool>(false)
-    let requestFailed = Observable<NetworkError?>(nil)
-    let insertedItems = Observable<[IndexPath]>([])
+    let insertedIndexes = PassthroughSubject<[IndexPath], Never>()
 
     var searchText: String = "" {
         didSet {
@@ -34,39 +35,44 @@ class GalleryViewModel {
     }
 
     func photoDetailViewModel(forItemAt indexPath: IndexPath) -> PhotoDetailViewModel {
-        return PhotoDetailViewModel(model: photos[indexPath.row].model, provider: provider)
+        return PhotoDetailViewModel(model: photos[indexPath.row].photoViewModel.model, provider: provider)
+    }
+
+    func removeAll() {
+        photos.removeAll()
     }
 
     func fetchImages() {
-        if !isLoading.value {
-            isLoading.value = true
+        if !isLoading {
+            isLoading = true
 
-            fetchRequest = provider.fetch { [weak self] result in
-                self?.isLoading.value = false
-                self?.fetchResult(result)
-            }
-        }
-    }
+            fetchRequest = provider.fetch()
+                .sink(receiveCompletion: { [weak self] completion in
+                    guard let self = self else { return }
 
-    private func fetchResult(_ result: Result<[PhotoModel], NetworkError>) {
-        switch result {
-        case .success(let newPhotos):
-            if !newPhotos.isEmpty {
-                // append the photos to the end of the collection view
-                photos.append(contentsOf: newPhotos.map {
-                    GalleryCellViewModel(model: $0, provider: provider)
+                    self.isLoading = false
+
+                    switch completion {
+                    case .failure(let error):
+                        self.requestFailed = error
+                    case .finished:
+                        break
+                    }
+                }, receiveValue: { [weak self] newPhotos in
+                    guard let self = self, !newPhotos.isEmpty else { return }
+
+                    // append the photos to the end of the collection view
+                    self.photos.append(contentsOf: newPhotos.map {
+                        GalleryCellViewModel(model: $0, provider: self.provider)
+                    })
+                    let total = self.photos.count
+                    let range = max(total - newPhotos.count, 0) ..< total
+                    self.insertedIndexes.send(range.map { IndexPath(row: $0, section: 0) })
                 })
-                let total = photos.count
-                let range = max(total - newPhotos.count, 0) ..< total
-                insertedItems.value = range.map { IndexPath(row: $0, section: 0) }
-            }
-
-        case .failure(let error):
-            self.requestFailed.value = error
         }
     }
 
     func abortRequest() {
-        fetchRequest?.task.cancel()
+        fetchRequest?.cancel()
     }
 }

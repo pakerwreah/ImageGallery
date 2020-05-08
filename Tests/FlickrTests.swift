@@ -6,12 +6,15 @@
 //
 
 import XCTest
+import Combine
 
 class FlickrTests: XCTestCase {
 
     let apikey = FlickrConfig().apikey
 
     var provider: FlickrSearchProvider!
+    
+    var disposables = Set<AnyCancellable>()
 
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.

@@ -7,8 +7,18 @@
 
 import Foundation
 
-class GalleryCellViewModel: PhotoViewModel {
+//FIXME: There is a bug with @Publish + inheritance
+
+//class GalleryCellViewModel: PhotoViewModel {
+//    init(model: PhotoModel, provider: PhotosSearchProvider) {
+//        super.init(model: model, provider: provider, size: .small)
+//    }
+//}
+
+class GalleryCellViewModel {
+    let photoViewModel: PhotoViewModel
+
     init(model: PhotoModel, provider: PhotosSearchProvider) {
-        super.init(model: model, provider: provider, size: .small)
+        photoViewModel = PhotoViewModel(model: model, provider: provider, size: .small)
     }
 }

@@ -6,12 +6,15 @@
 //
 
 import UIKit
+import Combine
 
 class GalleryViewController: UIViewController {
 
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var grid: UICollectionView!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+
+    private var observers = Set<AnyCancellable>()
 
     private let cellIdentifier = "GalleryCell"
     private let viewModel: GalleryViewModel
@@ -79,28 +82,37 @@ class GalleryViewController: UIViewController {
 extension GalleryViewController {
     func configureObservers() {
 
-        viewModel.isLoading.bind { [weak self] isLoading in
-            guard let self = self else { return }
+        viewModel.$photos
+            .filter { $0.isEmpty }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] items in
+                if let grid = self?.grid {
+                    grid.reloadData()
+                    grid.contentOffset = .zero
+                }
+            }.store(in: &observers)
 
-            // if it is the first fetch, show loading indicator
-            if isLoading, self.viewModel.photos.isEmpty {
-                self.loadingIndicator?.startAnimating()
-            } else {
-                self.loadingIndicator?.stopAnimating()
-            }
-        }
+        viewModel.$isLoading
+            .combineLatest(viewModel.$photos)
+            .map { $0.0 && $0.1.isEmpty }
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.isLoading, on: loadingIndicator)
+            .store(in: &observers)
 
-        viewModel.insertedItems.bind { [weak self] items in
-            if !items.isEmpty {
+        viewModel.insertedIndexes
+            .filter { !$0.isEmpty }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] items in
                 self?.grid.insertItems(at: items)
-            }
-        }
+            }.store(in: &observers)
 
-        viewModel.requestFailed.bind { [weak self] error in
-            guard let self = self, let error = error else { return }
-
-            self.present(Alert(title: "Error loading images", message: error.localizedDescription), animated: true)
-        }
+        viewModel.$requestFailed
+            .compactMap { $0?.localizedDescription }
+            .map { Alert(title: "Error loading images", message: $0) }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] alert in
+                self?.present(alert, animated: true)
+            }.store(in: &observers)
 
     }
 }
@@ -112,11 +124,7 @@ extension GalleryViewController: UISearchBarDelegate {
             // hide keyboard
             view.endEditing(true)
             // remove all items
-            viewModel.photos.removeAll()
-            // reload grid
-            grid.reloadData()
-            // scroll to top
-            grid.contentOffset = .zero
+            viewModel.removeAll()
             // update text to search
             viewModel.searchText = text
             // search images
@@ -143,12 +151,8 @@ extension GalleryViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
 
-        if !viewModel.photos.isEmpty {
-            let cellViewModel = viewModel.photos[indexPath.row]
-
-            cellViewModel.removeObservers()
-            cellViewModel.abortRequest()
-            cellViewModel.freeMemory()
+        if let cell = cell as? GalleryCell {
+            cell.recycle()
         }
 
     }
@@ -165,7 +169,7 @@ extension GalleryViewController: UICollectionViewDataSource {
 
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! GalleryCell
 
-        cell.viewModel = viewModel.photos[indexPath.row]
+        cell.viewModel = viewModel.photos[indexPath.row].photoViewModel
 
         return cell
     }

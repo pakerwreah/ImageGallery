@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 enum NetworkError: Error {
     case invalidURL
@@ -32,18 +33,18 @@ extension NetworkError: LocalizedError {
     }
 }
 
-class NetworkRequest {
-    private(set) var task: URLSessionTask
-
-    init(task: URLSessionTask) {
-        self.task = task
-    }
-
-    func copy(_ request: NetworkRequest) {
-        self.task = request.task
-    }
+enum NetworkTimeout: TimeInterval {
+    case quick = 5
+    case normal = 10
+    case long = 15
 }
 
 protocol NetworkProvider {
-    @discardableResult func request(url: String, completion: @escaping (Result<Data, NetworkError>) -> Void) -> NetworkRequest?
+    func request(url: String, timeout: NetworkTimeout) -> AnyPublisher<Data, NetworkError>
+}
+
+extension NetworkProvider {
+    func request(url: String) -> AnyPublisher<Data, NetworkError> {
+        return self.request(url: url, timeout: .quick)
+    }
 }

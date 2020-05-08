@@ -13,14 +13,16 @@ class FlickrSearchTests: FlickrTests {
 
         let exp = expectation(description: "Request success")
 
-        provider.prepare(search: "kitten").fetch { result in
-            switch result {
-            case .success(_): ()
-            case .failure(let error):
-                XCTFail(error.localizedDescription)
-            }
-            exp.fulfill()
-        }
+        provider.prepare(search: "kitten").fetch()
+            .sink(receiveCompletion: { result in
+                switch result {
+                case .finished: ()
+                case .failure(let error):
+                    XCTFail(error.localizedDescription)
+                }
+                exp.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {
@@ -33,14 +35,16 @@ class FlickrSearchTests: FlickrTests {
 
         let exp = expectation(description: "Request fail")
 
-        provider.prepare(search: "").fetch { result in
-            switch result {
-            case .success(_):
-                XCTFail("Empty text")
-            case .failure(_): ()
-            }
-            exp.fulfill()
-        }
+        provider.prepare(search: "").fetch()
+            .sink(receiveCompletion: { result in
+                switch result {
+                case .finished:
+                    XCTFail("Empty text")
+                case .failure: ()
+                }
+                exp.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {
@@ -63,14 +67,16 @@ class FlickrSearchTests: FlickrTests {
 
         let exp = expectation(description: "Request fail")
 
-        provider.prepare(search: "kitten").fetch { result in
-            switch result {
-            case .success(_):
-                XCTFail("Invalid response")
-            case .failure(_): ()
-            }
-            exp.fulfill()
-        }
+        provider.prepare(search: "kitten").fetch()
+            .sink(receiveCompletion: { result in
+                switch result {
+                case .finished:
+                    XCTFail("Invalid response")
+                case .failure: ()
+                }
+                exp.fulfill()
+            }, receiveValue: { _ in })
+            .store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.normal.rawValue) { error in
             if let error = error {

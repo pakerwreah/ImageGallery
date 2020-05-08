@@ -6,17 +6,17 @@
 //
 
 import Foundation
+import Combine
 
 class PhotoViewModel {
     private let provider: PhotosSearchProvider
-    private var imageRequest: NetworkRequest?
     private let size: ImageSize
 
     let model: PhotoModel
 
-    let imageData = Observable<Data?>(nil)
-    let downloadFailed = Observable<NetworkError?>(nil)
-    let isLoading = Observable<Bool>(false)
+    @Published private(set) var imageData: Data?
+    @Published private(set) var downloadFailed: NetworkError?
+    @Published private(set) var isLoading = false
 
     init(model: PhotoModel, provider: PhotosSearchProvider, size: ImageSize) {
         self.model = model
@@ -24,44 +24,34 @@ class PhotoViewModel {
         self.size = size
     }
 
-    deinit {
-        removeObservers()
-        abortRequest()
-    }
+    func downloadImage() -> AnyCancellable {
+        isLoading = true
+        downloadFailed = nil
+        imageData = nil
 
-    func downloadImage() {
-        isLoading.value = true
-        downloadFailed.value = nil
-        imageData.value = nil
+        return provider.downloadImage(photo: model, size: size)
+            .sink(receiveCompletion: { [weak self] completion in
+                guard let self = self else { return }
 
-        imageRequest = provider.downloadImage(photo: model, size: size) { [weak self] result in
-            guard let self = self else { return }
+                switch completion {
+                case .failure(.requestCancelled): ()
 
-            switch result {
-            case .success(let data):
-                self.isLoading.value = false
-                self.imageData.value = data
+                case .failure(let error):
+                    self.isLoading = false
+                    self.downloadFailed = error
 
-            case .failure(.requestCancelled): ()
+                case .finished:
+                    self.isLoading = false
+                    break
+                }
+            }, receiveValue: { [weak self] data in
+                guard let self = self else { return }
 
-            case .failure(let error):
-                self.isLoading.value = false
-                self.downloadFailed.value = error
-            }
-        }
-    }
-
-    func removeObservers() {
-        imageData.observer = nil
-        downloadFailed.observer = nil
-        isLoading.observer = nil
-    }
-
-    func abortRequest() {
-        imageRequest?.task.cancel()
+                self.imageData = data
+            })
     }
 
     func freeMemory() {
-        imageData.value = nil
+        imageData = nil
     }
 }
