@@ -62,7 +62,7 @@ class FlickrDownloadTests: FlickrTests {
                 }
                 exp_small.fulfill()
             }, receiveValue: { _ in })
-            .store(in: &observers)
+            .store(in: &disposables)
 
         let exp_big = expectation(description: "Big image downloaded")
 
@@ -75,7 +75,7 @@ class FlickrDownloadTests: FlickrTests {
                 }
                 exp_big.fulfill()
             }, receiveValue: { _ in })
-            .store(in: &observers)
+            .store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {
@@ -128,7 +128,7 @@ class FlickrDownloadTests: FlickrTests {
                 }
                 exp_small.fulfill()
             }, receiveValue: { _ in })
-            .store(in: &observers)
+            .store(in: &disposables)
 
         let exp_big = expectation(description: "Big image not found")
 
@@ -141,7 +141,7 @@ class FlickrDownloadTests: FlickrTests {
                 }
                 exp_big.fulfill()
             }, receiveValue: { _ in })
-            .store(in: &observers)
+            .store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {
@@ -194,7 +194,7 @@ class FlickrDownloadTests: FlickrTests {
                 }
                 exp.fulfill()
             }, receiveValue: { _ in })
-            .store(in: &observers)
+            .store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {

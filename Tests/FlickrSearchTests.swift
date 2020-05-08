@@ -22,7 +22,7 @@ class FlickrSearchTests: FlickrTests {
                 }
                 exp.fulfill()
             }, receiveValue: { _ in })
-            .store(in: &observers)
+            .store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {
@@ -44,7 +44,7 @@ class FlickrSearchTests: FlickrTests {
                 }
                 exp.fulfill()
             }, receiveValue: { _ in })
-            .store(in: &observers)
+            .store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {
@@ -76,7 +76,7 @@ class FlickrSearchTests: FlickrTests {
                 }
                 exp.fulfill()
             }, receiveValue: { _ in })
-            .store(in: &observers)
+            .store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.normal.rawValue) { error in
             if let error = error {

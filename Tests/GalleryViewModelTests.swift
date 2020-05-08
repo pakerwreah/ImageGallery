@@ -29,17 +29,17 @@ class GalleryViewModelTests: FlickrTests {
             } else {
                 expHideLoading.fulfill()
             }
-        }.store(in: &observers)
+        }.store(in: &disposables)
 
         viewModel.$requestFailed.sink { error in
             XCTAssertNil(error, "Should not fail")
-        }.store(in: &observers)
+        }.store(in: &disposables)
 
         viewModel.insertedIndexes.sink { items in
             expReceiveItems.fulfill()
             let itemsPerPage = self.provider.itemsPerPage
             XCTAssertEqual(items.count, itemsPerPage, "Should return \(itemsPerPage) items per page")
-        }.store(in: &observers)
+        }.store(in: &disposables)
 
         viewModel.fetchImages()
 

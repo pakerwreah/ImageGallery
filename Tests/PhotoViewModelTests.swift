@@ -35,19 +35,19 @@ class PhotoViewModelTests: FlickrTests {
             } else {
                 expHideLoading.fulfill()
             }
-        }.store(in: &observers)
+        }.store(in: &disposables)
 
         viewModel.$downloadFailed.sink { error in
             XCTAssertNil(error, "Should not fail")
-        }.store(in: &observers)
+        }.store(in: &disposables)
 
         viewModel.$imageData.sink { data in
             if data != nil {
                 expReceiveImage.fulfill()
             }
-        }.store(in: &observers)
+        }.store(in: &disposables)
 
-        viewModel.downloadImage()
+        viewModel.downloadImage().store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {
@@ -76,19 +76,19 @@ class PhotoViewModelTests: FlickrTests {
             } else {
                 expHideLoading.fulfill()
             }
-        }.store(in: &observers)
+        }.store(in: &disposables)
 
         viewModel.$downloadFailed.sink { error in
             if error != nil {
                 expDownloadFail.fulfill()
             }
-        }.store(in: &observers)
+        }.store(in: &disposables)
 
         viewModel.$imageData.sink { data in
             XCTAssertNil(data, "Should not receive image")
-        }.store(in: &observers)
+        }.store(in: &disposables)
 
-        viewModel.downloadImage()
+        viewModel.downloadImage().store(in: &disposables)
 
         waitForExpectations(timeout: NetworkTimeout.quick.rawValue) { error in
             if let error = error {
