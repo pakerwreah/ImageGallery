@@ -38,7 +38,7 @@ class GalleryViewController: UIViewController {
         searchBar.autocapitalizationType = .none
 
         // register cell layout to use in the collection view
-        grid.register(UINib(nibName: cellIdentifier, bundle: nil), forCellWithReuseIdentifier: cellIdentifier)
+        grid.register(GalleryCellAdapter.self, forCellWithReuseIdentifier: cellIdentifier)
 
         configureObservers()
     }
@@ -167,9 +167,9 @@ extension GalleryViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! GalleryCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! GalleryCellAdapter
 
-        cell.viewModel = viewModel.photos[indexPath.row].photoViewModel
+        cell.configure(viewModel: viewModel.photos[indexPath.row].photoViewModel)
 
         return cell
     }

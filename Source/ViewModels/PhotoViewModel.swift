@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-class PhotoViewModel {
+class PhotoViewModel: ObservableObject {
     private let provider: PhotosSearchProvider
     private let size: ImageSize
 
@@ -30,6 +30,7 @@ class PhotoViewModel {
         imageData = nil
 
         return provider.downloadImage(photo: model, size: size)
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
 
