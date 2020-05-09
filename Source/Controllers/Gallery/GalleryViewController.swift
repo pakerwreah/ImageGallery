@@ -169,7 +169,7 @@ extension GalleryViewController: UICollectionViewDataSource {
 
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! GalleryCell
 
-        cell.viewModel = viewModel.photos[indexPath.row].photoViewModel
+        cell.configure(viewModel: viewModel.photos[indexPath.row].photoViewModel)
 
         return cell
     }

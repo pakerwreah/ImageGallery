@@ -18,30 +18,29 @@ class GalleryCell: UICollectionViewCell {
     private var disposables = Set<AnyCancellable>()
     private var download: AnyCancellable?
 
-    private let debouncer = PassthroughSubject<Void, Never>()
+    private let debouncer = PassthroughSubject<PhotoViewModel, Never>()
+    
+    private(set) var viewModel: PhotoViewModel?
 
     override func awakeFromNib() {
         super.awakeFromNib()
 
         debouncer.debounce(for: .seconds(0.3), scheduler: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-                
-                self.download = self.viewModel?.downloadImage()
-                
-            }.store(in: &disposables)
+            .map { $0.downloadImage() }
+            .assign(to: \.download, on: self)
+            .store(in: &disposables)
     }
 
-    var viewModel: PhotoViewModel? {
-        didSet {
-            recycle()
-            
-            configureObservers()
-            
-            imageView.image = nil
-            
-            debouncer.send()
-        }
+    func configure(viewModel: PhotoViewModel) {
+        self.viewModel = viewModel
+        
+        recycle()
+
+        configureObservers()
+
+        imageView.image = nil
+
+        debouncer.send(viewModel)
     }
 
     @IBAction func reload(_ sender: Any) {
@@ -51,14 +50,14 @@ class GalleryCell: UICollectionViewCell {
 
 //MARK: - Observers
 extension GalleryCell {
-    func configureObservers() {
+    private func configureObservers() {
         guard let viewModel = viewModel else { return }
 
         viewModel.$imageData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] imageData in
                 guard let self = self else { return }
-                
+
                 if let data = imageData, let image = UIImage(data: data) {
                     self.imageView.layer.removeAllAnimations()
                     self.imageView.alpha = 0
