@@ -34,6 +34,13 @@ class GalleryViewModel {
         abortRequest()
     }
 
+    func photoViewModel(at indexPath: IndexPath) -> PhotoViewModel? {
+        if !photos.isEmpty {
+            return photos[indexPath.row].photoViewModel
+        }
+        return nil
+    }
+
     func photoDetailViewModel(forItemAt indexPath: IndexPath) -> PhotoDetailViewModel {
         return PhotoDetailViewModel(model: photos[indexPath.row].photoViewModel.model, provider: provider)
     }

@@ -151,8 +151,12 @@ extension GalleryViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
 
-        if let cell = cell as? GalleryCell {
-            cell.recycle()
+        // free image data
+        viewModel.photoViewModel(at: indexPath)?.freeMemory()
+
+        // cancel download
+        if let cell = cell as? GalleryCellAdapter {
+            cell.cellView.recycle()
         }
 
     }
@@ -169,7 +173,7 @@ extension GalleryViewController: UICollectionViewDataSource {
 
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! GalleryCellAdapter
 
-        cell.configure(viewModel: viewModel.photos[indexPath.row].photoViewModel)
+        cell.configure(viewModel: viewModel.photoViewModel(at: indexPath)!)
 
         return cell
     }

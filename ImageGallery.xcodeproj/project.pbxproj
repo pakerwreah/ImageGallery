@@ -27,8 +27,6 @@
 		34C50A862412BD5500C170E4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 34C50A842412BD5500C170E4 /* LaunchScreen.storyboard */; };
 		34C50AA22412DACE00C170E4 /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C50AA02412DACD00C170E4 /* GalleryViewController.swift */; };
 		34C50AA32412DACE00C170E4 /* GalleryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 34C50AA12412DACD00C170E4 /* GalleryViewController.xib */; };
-		34C50AA72412E1B300C170E4 /* GalleryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C50AA52412E1B300C170E4 /* GalleryCell.swift */; };
-		34C50AA82412E1B300C170E4 /* GalleryCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 34C50AA62412E1B300C170E4 /* GalleryCell.xib */; };
 		34C50AAB2412ED8500C170E4 /* PhotosSearchProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C50AAA2412ED8500C170E4 /* PhotosSearchProvider.swift */; };
 		34C50AAE2412F1BC00C170E4 /* PhotoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C50AAD2412F1BC00C170E4 /* PhotoModel.swift */; };
 		34C50AB12412F5DA00C170E4 /* FlickrSearchProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C50AB02412F5DA00C170E4 /* FlickrSearchProvider.swift */; };
@@ -91,8 +89,6 @@
 		34C50A922412BD5500C170E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		34C50AA02412DACD00C170E4 /* GalleryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewController.swift; sourceTree = "<group>"; };
 		34C50AA12412DACD00C170E4 /* GalleryViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GalleryViewController.xib; sourceTree = "<group>"; };
-		34C50AA52412E1B300C170E4 /* GalleryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryCell.swift; sourceTree = "<group>"; };
-		34C50AA62412E1B300C170E4 /* GalleryCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GalleryCell.xib; sourceTree = "<group>"; };
 		34C50AAA2412ED8500C170E4 /* PhotosSearchProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosSearchProvider.swift; sourceTree = "<group>"; };
 		34C50AAD2412F1BC00C170E4 /* PhotoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoModel.swift; sourceTree = "<group>"; };
 		34C50AB02412F5DA00C170E4 /* FlickrSearchProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrSearchProvider.swift; sourceTree = "<group>"; };
@@ -224,7 +220,7 @@
 		34C50A9C2412C5D800C170E4 /* Gallery */ = {
 			isa = PBXGroup;
 			children = (
-				34C50AA42412E16000C170E4 /* Cell */,
+				34E9755E2465EA4D00898E2B /* GalleryCellView.swift */,
 				34C50AA02412DACD00C170E4 /* GalleryViewController.swift */,
 				34C50AA12412DACD00C170E4 /* GalleryViewController.xib */,
 			);
@@ -257,16 +253,6 @@
 				34C50A842412BD5500C170E4 /* LaunchScreen.storyboard */,
 			);
 			path = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		34C50AA42412E16000C170E4 /* Cell */ = {
-			isa = PBXGroup;
-			children = (
-				34C50AA52412E1B300C170E4 /* GalleryCell.swift */,
-				34C50AA62412E1B300C170E4 /* GalleryCell.xib */,
-				34E9755E2465EA4D00898E2B /* GalleryCellView.swift */,
-			);
-			path = Cell;
 			sourceTree = "<group>";
 		};
 		34C50AA92412ED5E00C170E4 /* Providers */ = {
@@ -416,7 +402,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				34C50AA82412E1B300C170E4 /* GalleryCell.xib in Resources */,
 				34DE7B1824146E49004B455A /* PhotoDetailViewController.xib in Resources */,
 				34C50A862412BD5500C170E4 /* LaunchScreen.storyboard in Resources */,
 				346AC301245D3F400043AFAE /* Flickr.plist in Resources */,
@@ -447,7 +432,6 @@
 				34C50AAB2412ED8500C170E4 /* PhotosSearchProvider.swift in Sources */,
 				34CDBA53246070D2002FEE74 /* GalleryCellViewModel.swift in Sources */,
 				34C53A63241447EF00372A92 /* CachedNetworkProvider.swift in Sources */,
-				34C50AA72412E1B300C170E4 /* GalleryCell.swift in Sources */,
 				34E975642466135400898E2B /* OptionalView.swift in Sources */,
 				34C1B027245CD4E100A3CD87 /* PhotoViewModel.swift in Sources */,
 				34DE7B1224145B68004B455A /* Alert.swift in Sources */,

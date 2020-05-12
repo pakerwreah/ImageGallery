@@ -12,7 +12,7 @@ import Combine
 
 class GalleryCellAdapter: UICollectionViewCell {
     private var viewController: UIViewController?
-    private let cellView = GalleryCellView()
+    let cellView = GalleryCellView()
 
     func configure(viewModel: PhotoViewModel) {
         viewController = UIHostingController(rootView: cellView.environmentObject(viewModel))
@@ -50,6 +50,10 @@ struct GalleryCellView: View {
             .debounce(for: .seconds(0.3), scheduler: DispatchQueue.main)
             .map { $0.downloadImage() }
             .assign(to: \.download, on: bag)
+    }
+
+    func recycle() {
+        bag.download = nil
     }
 
     var body: some View {
