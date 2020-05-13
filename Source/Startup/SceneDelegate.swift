@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -21,11 +22,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             
             let viewModel = GalleryViewModel(provider: photoProvider)
             
-            let homeController = GalleryViewController(viewModel: viewModel)
+            let homeController = UIHostingController(rootView: GalleryView(viewModel: viewModel))
             
-            let navigationController = UINavigationController(rootViewController: homeController)
-            
-            window.rootViewController = navigationController
+            window.rootViewController = homeController
 
             self.window = window
 

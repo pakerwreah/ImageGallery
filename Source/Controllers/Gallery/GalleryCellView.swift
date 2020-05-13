@@ -10,24 +10,24 @@ import Combine
 
 //MARK: - Adapter
 
-class GalleryCellAdapter: UICollectionViewCell {
-    private var viewController: UIViewController?
-    let cellView = GalleryCellView()
-
-    func configure(viewModel: PhotoViewModel) {
-        viewController = UIHostingController(rootView: cellView.environmentObject(viewModel))
-
-        if let view = viewController?.view {
-            view.translatesAutoresizingMaskIntoConstraints = false
-            contentView.subviews.first?.removeFromSuperview()
-            contentView.addSubview(view)
-            view.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-            view.leftAnchor.constraint(equalTo: contentView.leftAnchor).isActive = true
-            view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
-            view.rightAnchor.constraint(equalTo: contentView.rightAnchor).isActive = true
-        }
-    }
-}
+//class GalleryCellAdapter: UICollectionViewCell {
+//    private var viewController: UIViewController?
+//    let cellView = GalleryCellView()
+//
+//    func configure(viewModel: PhotoViewModel) {
+//        viewController = UIHostingController(rootView: cellView.environmentObject(viewModel))
+//
+//        if let view = viewController?.view {
+//            view.translatesAutoresizingMaskIntoConstraints = false
+//            contentView.subviews.first?.removeFromSuperview()
+//            contentView.addSubview(view)
+//            view.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+//            view.leftAnchor.constraint(equalTo: contentView.leftAnchor).isActive = true
+//            view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+//            view.rightAnchor.constraint(equalTo: contentView.rightAnchor).isActive = true
+//        }
+//    }
+//}
 
 //MARK: - View
 
@@ -37,7 +37,7 @@ fileprivate class DisposableBag {
 }
 
 struct GalleryCellView: View {
-    @EnvironmentObject private var viewModel: PhotoViewModel
+    @ObservedObject private var viewModel: PhotoViewModel
 
     @State private var opacity: Double = 0
 
@@ -45,7 +45,9 @@ struct GalleryCellView: View {
 
     private var bag = DisposableBag()
 
-    init() {
+    init(viewModel: GalleryCellViewModel) {
+        self.viewModel = viewModel.photoViewModel
+
         bag.debouncer = debouncer
             .debounce(for: .seconds(0.3), scheduler: DispatchQueue.main)
             .map { $0.downloadImage() }

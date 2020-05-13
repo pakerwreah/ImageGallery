@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-class GalleryViewModel {
+class GalleryViewModel: ObservableObject {
     private let provider: PhotosSearchProvider
     private var fetchRequest: AnyCancellable?
 
@@ -42,7 +42,7 @@ class GalleryViewModel {
     }
 
     func photoDetailViewModel(forItemAt indexPath: IndexPath) -> PhotoDetailViewModel {
-        return PhotoDetailViewModel(model: photos[indexPath.row].photoViewModel.model, provider: provider)
+        PhotoDetailViewModel(model: photos[indexPath.row].photoViewModel.model, provider: provider)
     }
 
     func removeAll() {
@@ -54,6 +54,7 @@ class GalleryViewModel {
             isLoading = true
 
             fetchRequest = provider.fetch()
+                .receive(on: DispatchQueue.main)
                 .sink(receiveCompletion: { [weak self] completion in
                     guard let self = self else { return }
 

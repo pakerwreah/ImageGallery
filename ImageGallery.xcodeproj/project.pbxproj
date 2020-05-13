@@ -25,7 +25,6 @@
 		34C50A792412BD4F00C170E4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C50A782412BD4F00C170E4 /* SceneDelegate.swift */; };
 		34C50A832412BD5500C170E4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 34C50A822412BD5500C170E4 /* Assets.xcassets */; };
 		34C50A862412BD5500C170E4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 34C50A842412BD5500C170E4 /* LaunchScreen.storyboard */; };
-		34C50AA22412DACE00C170E4 /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C50AA02412DACD00C170E4 /* GalleryViewController.swift */; };
 		34C50AA32412DACE00C170E4 /* GalleryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 34C50AA12412DACD00C170E4 /* GalleryViewController.xib */; };
 		34C50AAB2412ED8500C170E4 /* PhotosSearchProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C50AAA2412ED8500C170E4 /* PhotosSearchProvider.swift */; };
 		34C50AAE2412F1BC00C170E4 /* PhotoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C50AAD2412F1BC00C170E4 /* PhotoModel.swift */; };
@@ -58,6 +57,9 @@
 		34E9755F2465EA4D00898E2B /* GalleryCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E9755E2465EA4D00898E2B /* GalleryCellView.swift */; };
 		34E975622465F97100898E2B /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E975612465F97100898E2B /* ActivityIndicator.swift */; };
 		34E975642466135400898E2B /* OptionalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E975632466135400898E2B /* OptionalView.swift */; };
+		657FE74270D26D062D44CEA6 /* Array+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FE9F01943D3BFD232A1BC /* Array+Helpers.swift */; };
+		657FE7724FE2820D38B0C0FF /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FE979C31820EDBC499958 /* SearchBar.swift */; };
+		657FE9C11C93F8F6CFC4ACAA /* GalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FEA573C3D00F6328D1F34 /* GalleryView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -111,6 +113,9 @@
 		34E9755E2465EA4D00898E2B /* GalleryCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryCellView.swift; sourceTree = "<group>"; };
 		34E975612465F97100898E2B /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		34E975632466135400898E2B /* OptionalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalView.swift; sourceTree = "<group>"; };
+		657FE979C31820EDBC499958 /* SearchBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
+		657FE9F01943D3BFD232A1BC /* Array+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Helpers.swift"; sourceTree = "<group>"; };
+		657FEA573C3D00F6328D1F34 /* GalleryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GalleryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -223,6 +228,7 @@
 				34E9755E2465EA4D00898E2B /* GalleryCellView.swift */,
 				34C50AA02412DACD00C170E4 /* GalleryViewController.swift */,
 				34C50AA12412DACD00C170E4 /* GalleryViewController.xib */,
+				657FEA573C3D00F6328D1F34 /* GalleryView.swift */,
 			);
 			path = Gallery;
 			sourceTree = "<group>";
@@ -290,6 +296,7 @@
 				34E97558246369B200898E2B /* UIActivityIndicatorView+Loading.swift */,
 				34C53A6724144D1200372A92 /* NetworkProvider+Reachability.swift */,
 				34E9755B2464A0B700898E2B /* AnyPublisher+Helpers.swift */,
+				657FE9F01943D3BFD232A1BC /* Array+Helpers.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -317,6 +324,7 @@
 			children = (
 				34E975612465F97100898E2B /* ActivityIndicator.swift */,
 				34E975632466135400898E2B /* OptionalView.swift */,
+				657FE979C31820EDBC499958 /* SearchBar.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -436,7 +444,6 @@
 				34C1B027245CD4E100A3CD87 /* PhotoViewModel.swift in Sources */,
 				34DE7B1224145B68004B455A /* Alert.swift in Sources */,
 				346AC30A245DFC5A0043AFAE /* GalleryViewModel.swift in Sources */,
-				34C50AA22412DACE00C170E4 /* GalleryViewController.swift in Sources */,
 				34E975622465F97100898E2B /* ActivityIndicator.swift in Sources */,
 				34E9755C2464A0B700898E2B /* AnyPublisher+Helpers.swift in Sources */,
 				34E9755F2465EA4D00898E2B /* GalleryCellView.swift in Sources */,
@@ -450,6 +457,9 @@
 				346AC30D245E3F420043AFAE /* Orientation.swift in Sources */,
 				34C50A792412BD4F00C170E4 /* SceneDelegate.swift in Sources */,
 				34E97559246369B200898E2B /* UIActivityIndicatorView+Loading.swift in Sources */,
+				657FE9C11C93F8F6CFC4ACAA /* GalleryView.swift in Sources */,
+				657FE7724FE2820D38B0C0FF /* SearchBar.swift in Sources */,
+				657FE74270D26D062D44CEA6 /* Array+Helpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
